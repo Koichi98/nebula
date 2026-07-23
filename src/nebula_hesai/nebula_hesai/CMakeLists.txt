@@ -53,7 +53,7 @@ if("$ENV{ENABLE_AGNOCAST}")
   agnocast_components_register_node(
     hesai_ros_wrapper PLUGIN "HesaiRosWrapper"
     EXECUTABLE hesai_ros_wrapper_node
-    EXECUTOR CallbackIsolatedAgnocastExecutor)
+    EXECUTOR AgnocastOnlyCallbackIsolatedExecutor)
 else()
   rclcpp_components_register_node(hesai_ros_wrapper PLUGIN "HesaiRosWrapper"
                                   EXECUTABLE hesai_ros_wrapper_node)

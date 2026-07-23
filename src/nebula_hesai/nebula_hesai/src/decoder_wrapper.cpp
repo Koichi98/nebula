@@ -37,7 +37,7 @@ HesaiDecoderWrapper::HesaiDecoderWrapper(
   nebula::agnocast_wrapper::Node * parent_node,
   const std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> & config,
   const std::shared_ptr<const drivers::HesaiCalibrationConfigurationBase> & calibration,
-  diagnostic_updater::Updater & diagnostic_updater, bool publish_packets)
+  nebula::agnocast_wrapper::diagnostic_updater::Updater & diagnostic_updater, bool publish_packets)
 : status_(nebula::Status::NOT_INITIALIZED),
   logger_(parent_node->get_logger().get_child("HesaiDecoder")),
   parent_node_(*parent_node),
@@ -77,7 +77,9 @@ HesaiDecoderWrapper::HesaiDecoderWrapper(
     packets_pub_thread_.emplace(
       [this](pandar_msgs::msg::PandarScan::UniquePtr && msg) {
         if (packets_pub_) {
-          packets_pub_->publish(std::move(msg));
+          auto out = ALLOCATE_OUTPUT_MESSAGE_UNIQUE(packets_pub_);
+          *out = std::move(*msg);
+          packets_pub_->publish(std::move(out));
         }
       },
       10);
@@ -87,9 +89,12 @@ HesaiDecoderWrapper::HesaiDecoderWrapper(
   auto pointcloud_qos =
     rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 10), qos_profile);
 
-  nebula_points_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("pandar_points", pointcloud_qos);
-  aw_points_base_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points", pointcloud_qos);
-  aw_points_ex_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points_ex", pointcloud_qos);
+  nebula_points_pub_ =
+    parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("pandar_points", pointcloud_qos);
+  aw_points_base_pub_ =
+    parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points", pointcloud_qos);
+  aw_points_ex_pub_ =
+    parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points_ex", pointcloud_qos);
 
   RCLCPP_INFO_STREAM(logger_, ". Wrapper=" << status_);
 
@@ -235,7 +240,7 @@ void HesaiDecoderWrapper::publish_cloud(
 }
 
 void HesaiDecoderWrapper::initialize_functional_safety(
-  diagnostic_updater::Updater & diagnostic_updater,
+  nebula::agnocast_wrapper::diagnostic_updater::Updater & diagnostic_updater,
   const std::optional<drivers::AdvancedFunctionalSafetyConfiguration> & fs_config)
 {
   if (!drivers::supports_functional_safety(sensor_cfg_->sensor_model)) {
@@ -257,7 +262,7 @@ void HesaiDecoderWrapper::initialize_functional_safety(
 }
 
 void HesaiDecoderWrapper::initialize_packet_loss_diagnostic(
-  diagnostic_updater::Updater & diagnostic_updater)
+  nebula::agnocast_wrapper::diagnostic_updater::Updater & diagnostic_updater)
 {
   if (!drivers::supports_packet_loss_detection(sensor_cfg_->sensor_model)) {
     return;
@@ -280,7 +285,8 @@ HesaiDecoderWrapper::initialize_blockage_mask_plugin()
 
   auto blockage_mask_plugin = std::make_shared<drivers::point_filters::BlockageMaskPlugin>(
     sensor_cfg_->blockage_mask_horizontal_bin_size_mdeg.value());
-  auto blockage_mask_pub = parent_node_.create_publisher<sensor_msgs::msg::Image>("blockage_mask", rclcpp::SensorDataQoS());
+  auto blockage_mask_pub = parent_node_.create_publisher<sensor_msgs::msg::Image>(
+    "blockage_mask", rclcpp::SensorDataQoS());
 
   blockage_mask_plugin->set_callback(
     [this, blockage_mask_pub](

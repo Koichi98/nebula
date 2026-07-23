@@ -5,8 +5,14 @@ find_package(autoware_cmake REQUIRED)
 find_package(Boost REQUIRED)
 autoware_package()
 
-# Common library for parameter descriptors
-add_library(nebula_core_ros SHARED src/parameter_descriptors.cpp)
+if("$ENV{ENABLE_AGNOCAST}" AND NOT agnocastlib_FOUND)
+  find_package(agnocastlib REQUIRED)
+endif()
+
+# Common library for parameter descriptors and the agnocast_wrapper Node backend
+add_library(nebula_core_ros SHARED
+  src/parameter_descriptors.cpp
+  src/agnocast_wrapper/node.cpp)
 
 target_include_directories(
   nebula_core_ros PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -15,6 +21,11 @@ target_include_directories(
 target_link_libraries(
   nebula_core_ros PUBLIC rclcpp::rclcpp nebula_core_common::nebula_core_common
                          rosbag2_storage::rosbag2_storage Boost::headers)
+
+if("$ENV{ENABLE_AGNOCAST}")
+  ament_target_dependencies(nebula_core_ros PUBLIC agnocastlib)
+  target_compile_definitions(nebula_core_ros PUBLIC USE_AGNOCAST_ENABLED)
+endif()
 
 install(
   TARGETS nebula_core_ros
@@ -43,5 +54,9 @@ install(DIRECTORY schema DESTINATION share/${PROJECT_NAME})
 
 ament_export_dependencies(Boost diagnostic_msgs diagnostic_updater
                           nebula_core_common rclcpp rosbag2_storage)
+
+if("$ENV{ENABLE_AGNOCAST}")
+  ament_export_dependencies(agnocastlib)
+endif()
 
 ament_package()
