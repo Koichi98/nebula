@@ -34,7 +34,7 @@ namespace nebula::ros
 using namespace std::chrono_literals;  // NOLINT(build/namespaces)
 
 HesaiDecoderWrapper::HesaiDecoderWrapper(
-  rclcpp::Node * parent_node,
+  nebula::agnocast_wrapper::Node * parent_node,
   const std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> & config,
   const std::shared_ptr<const drivers::HesaiCalibrationConfigurationBase> & calibration,
   diagnostic_updater::Updater & diagnostic_updater, bool publish_packets)
@@ -87,12 +87,9 @@ HesaiDecoderWrapper::HesaiDecoderWrapper(
   auto pointcloud_qos =
     rclcpp::QoS(rclcpp::QoSInitialization(qos_profile.history, 10), qos_profile);
 
-  nebula_points_pub_ = NEBULA_CREATE_PUBLISHER2_ON_NODE(
-    sensor_msgs::msg::PointCloud2, &parent_node_, "pandar_points", pointcloud_qos);
-  aw_points_base_pub_ = NEBULA_CREATE_PUBLISHER2_ON_NODE(
-    sensor_msgs::msg::PointCloud2, &parent_node_, "aw_points", pointcloud_qos);
-  aw_points_ex_pub_ = NEBULA_CREATE_PUBLISHER2_ON_NODE(
-    sensor_msgs::msg::PointCloud2, &parent_node_, "aw_points_ex", pointcloud_qos);
+  nebula_points_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("pandar_points", pointcloud_qos);
+  aw_points_base_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points", pointcloud_qos);
+  aw_points_ex_pub_ = parent_node_.create_publisher<sensor_msgs::msg::PointCloud2>("aw_points_ex", pointcloud_qos);
 
   RCLCPP_INFO_STREAM(logger_, ". Wrapper=" << status_);
 
@@ -283,8 +280,7 @@ HesaiDecoderWrapper::initialize_blockage_mask_plugin()
 
   auto blockage_mask_plugin = std::make_shared<drivers::point_filters::BlockageMaskPlugin>(
     sensor_cfg_->blockage_mask_horizontal_bin_size_mdeg.value());
-  auto blockage_mask_pub = NEBULA_CREATE_PUBLISHER2_ON_NODE(
-    sensor_msgs::msg::Image, &parent_node_, "blockage_mask", rclcpp::SensorDataQoS());
+  auto blockage_mask_pub = parent_node_.create_publisher<sensor_msgs::msg::Image>("blockage_mask", rclcpp::SensorDataQoS());
 
   blockage_mask_plugin->set_callback(
     [this, blockage_mask_pub](

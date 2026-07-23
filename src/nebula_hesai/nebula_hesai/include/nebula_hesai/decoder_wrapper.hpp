@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "nebula_core_ros/agnocast_wrapper/node.hpp"
+
 #include "nebula_core_ros/agnocast_wrapper/autoware_agnocast_wrapper.hpp"
 #include "nebula_core_ros/diagnostics/rate_bound_status.hpp"
 #include "nebula_core_ros/single_consumer_processor.hpp"
@@ -47,7 +49,7 @@ class HesaiDecoderWrapper
 {
 public:
   HesaiDecoderWrapper(
-    rclcpp::Node * parent_node,
+    nebula::agnocast_wrapper::Node * parent_node,
     const std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> & config,
     const std::shared_ptr<const nebula::drivers::HesaiCalibrationConfigurationBase> & calibration,
     diagnostic_updater::Updater & diagnostic_updater, bool publish_packets);
@@ -91,7 +93,7 @@ private:
   }
 
   static custom_diagnostic_tasks::RateBoundStatus make_rate_bound_status(
-    uint16_t rpm, rclcpp::Node & node)
+    uint16_t rpm, nebula::agnocast_wrapper::Node & node)
   {
     double nominal_rate_hz = drivers::rpm2hz(rpm);
 
@@ -140,7 +142,7 @@ private:
 
   nebula::Status status_;
   rclcpp::Logger logger_;
-  rclcpp::Node & parent_node_;
+  nebula::agnocast_wrapper::Node & parent_node_;
 
   std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> sensor_cfg_;
   std::shared_ptr<const drivers::HesaiCalibrationConfigurationBase> calibration_cfg_ptr_;

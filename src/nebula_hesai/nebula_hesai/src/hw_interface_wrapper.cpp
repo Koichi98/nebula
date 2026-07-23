@@ -15,7 +15,7 @@ namespace nebula::ros
 {
 
 HesaiHwInterfaceWrapper::HesaiHwInterfaceWrapper(
-  rclcpp::Node * const parent_node,
+  nebula::agnocast_wrapper::Node * const parent_node,
   std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> & config, bool use_udp_only)
 : hw_interface_(
     std::make_shared<drivers::HesaiHwInterface>(

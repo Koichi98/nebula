@@ -47,7 +47,7 @@ void HesaiHwMonitorWrapper::add_json_item_to_diagnostics(
 }
 
 HesaiHwMonitorWrapper::HesaiHwMonitorWrapper(
-  rclcpp::Node * const parent_node, diagnostic_updater::Updater & diagnostic_updater,
+  nebula::agnocast_wrapper::Node * const parent_node, diagnostic_updater::Updater & diagnostic_updater,
   const std::shared_ptr<nebula::drivers::HesaiHwInterface> & hw_interface,
   const std::shared_ptr<const nebula::drivers::HesaiSensorConfiguration> & config,
   const std::shared_ptr<SyncToolingWorker> & sync_tooling_worker)
