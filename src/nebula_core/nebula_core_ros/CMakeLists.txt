@@ -8,6 +8,19 @@ autoware_package()
 # Common library for parameter descriptors
 add_library(nebula_core_ros SHARED src/parameter_descriptors.cpp)
 
+# The agnocast_wrapper sources synced from autoware.core hold the out-of-line definitions for
+# node.hpp and runtime.hpp. runtime.cpp defines use_agnocast() in both builds and so is always
+# compiled; node.cpp is empty unless USE_AGNOCAST_ENABLED is set. That macro is PUBLIC because it
+# selects which Node class this library compiles into itself, so consumers must see the same one.
+target_sources(
+  nebula_core_ros PRIVATE src/agnocast_wrapper/node.cpp
+                          src/agnocast_wrapper/runtime.cpp)
+
+if("$ENV{ENABLE_AGNOCAST}")
+  target_compile_definitions(nebula_core_ros PUBLIC USE_AGNOCAST_ENABLED)
+  target_link_libraries(nebula_core_ros PUBLIC agnocastlib::agnocast)
+endif()
+
 target_include_directories(
   nebula_core_ros PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
                          $<INSTALL_INTERFACE:include>)
@@ -44,5 +57,9 @@ install(DIRECTORY schema DESTINATION share/${PROJECT_NAME})
 
 ament_export_dependencies(Boost diagnostic_msgs diagnostic_updater
                           nebula_core_common rclcpp rosbag2_storage)
+
+if("$ENV{ENABLE_AGNOCAST}")
+  ament_export_dependencies(agnocastlib)
+endif()
 
 ament_package()
