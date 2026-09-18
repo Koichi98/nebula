@@ -172,3 +172,36 @@
         sd 'AUTOWARE_' 'NEBULA_' {source}
         sd 'autoware/agnocast_wrapper/' 'nebula_core_ros/agnocast_wrapper/' {source}
         sd 'autoware_agnocast_wrapper.hpp' 'nebula_agnocast_wrapper.hpp' {source}
+    # The register_node macro and its template generate the standalone executable for a node that
+    # can run on either backend: it calls agnocast::init() only in agnocast-only mode and
+    # rclcpp::init() otherwise, so an ENABLE_AGNOCAST=1 build still runs with ENABLE_AGNOCAST=0.
+    - source: common/autoware_agnocast_wrapper/cmake/autoware_agnocast_wrapper_register_node.cmake
+      dest: src/nebula_core/nebula_core_ros/cmake/nebula_agnocast_wrapper_register_node.cmake
+      pre-commands: |
+        sd 'autoware_agnocast_wrapper_DIR' 'nebula_core_ros_DIR' {source}
+        sd '      autoware_agnocast_wrapper\)' '      nebula_core_ros)' {source}
+        sd 'autoware_agnocast_wrapper' 'nebula_agnocast_wrapper' {source}
+        sd 'autoware::agnocast_wrapper' 'nebula::agnocast_wrapper' {source}
+        sd 'AUTOWARE_' 'NEBULA_' {source}
+        sd 'autoware/agnocast_wrapper/' 'nebula_core_ros/agnocast_wrapper/' {source}
+        sd 'autoware_agnocast_wrapper.hpp' 'nebula_agnocast_wrapper.hpp' {source}
+    - source: common/autoware_agnocast_wrapper/cmake/agnocast_wrapper_config_extras.cmake
+      dest: src/nebula_core/nebula_core_ros/cmake/agnocast_wrapper_config_extras.cmake
+      pre-commands: |
+        sd 'autoware_agnocast_wrapper_DIR' 'nebula_core_ros_DIR' {source}
+        sd '      autoware_agnocast_wrapper\)' '      nebula_core_ros)' {source}
+        sd 'autoware_agnocast_wrapper' 'nebula_agnocast_wrapper' {source}
+        sd 'autoware::agnocast_wrapper' 'nebula::agnocast_wrapper' {source}
+        sd 'AUTOWARE_' 'NEBULA_' {source}
+        sd 'autoware/agnocast_wrapper/' 'nebula_core_ros/agnocast_wrapper/' {source}
+        sd 'autoware_agnocast_wrapper.hpp' 'nebula_agnocast_wrapper.hpp' {source}
+    - source: common/autoware_agnocast_wrapper/templates/node_main_switchable.cpp.in
+      dest: src/nebula_core/nebula_core_ros/templates/node_main_switchable.cpp.in
+      pre-commands: |
+        sd 'autoware_agnocast_wrapper_DIR' 'nebula_core_ros_DIR' {source}
+        sd '      autoware_agnocast_wrapper\)' '      nebula_core_ros)' {source}
+        sd 'autoware_agnocast_wrapper' 'nebula_agnocast_wrapper' {source}
+        sd 'autoware::agnocast_wrapper' 'nebula::agnocast_wrapper' {source}
+        sd 'AUTOWARE_' 'NEBULA_' {source}
+        sd 'autoware/agnocast_wrapper/' 'nebula_core_ros/agnocast_wrapper/' {source}
+        sd 'autoware_agnocast_wrapper.hpp' 'nebula_agnocast_wrapper.hpp' {source}
